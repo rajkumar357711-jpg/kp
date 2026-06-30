@@ -1,35 +1,52 @@
-
-const API_KEY = "AIzaSyCrQKEbtqANem8RocJM-4CNRtIeIv2hYDs";
-const CHANNEL_ID = "https://www.youtube.com/@Killerplayztamil";
+const API_KEY = process.env.YOUTUBE_API_KEY;
+const CHANNEL_ID = "UC2gHi5ghVkq_bWya0a-8gdw"; // Must start with UC...
 const DISCORD_CHANNEL_ID = "1312097094814666792";
 
 let lastVideo = null;
 
 async function checkUploads(client) {
+  try {
+    const url =
+      `https://www.googleapis.com/youtube/v3/search?` +
+      `key=${API_KEY}` +
+      `&channelId=${CHANNEL_ID}` +
+      `&part=snippet,id` +
+      `&order=date` +
+      `&maxResults=1` +
+      `&type=video`;
 
-  const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=1`;
+    const res = await fetch(url);
+    const data = await res.json();
 
-  const res = await fetch(url);
-  const data = await res.json();
+    console.log(data);
 
-  const video = data.items[0];
+    if (data.error) {
+      console.log("YouTube API Error:", data.error.message);
+      return;
+    }
 
-  if (!video) return;
+    if (!data.items || data.items.length === 0) {
+      console.log("No videos found.");
+      return;
+    }
 
-  if (lastVideo && lastVideo === video.id.videoId) return;
+    const video = data.items[0];
 
-  lastVideo = video.id.videoId;
+    if (lastVideo === video.id.videoId) return;
 
-  const channel = client.channels.cache.get(DISCORD_CHANNEL_ID);
+    lastVideo = video.id.videoId;
 
-  if (!channel) return;
+    const channel = client.channels.cache.get(DISCORD_CHANNEL_ID);
+    if (!channel) return;
 
-  const videoURL = `https://youtube.com/watch?v=${video.id.videoId}`;
+    const videoURL = `https://www.youtube.com/watch?v=${video.id.videoId}`;
 
-  channel.send(
-    `🚨 **NEW VIDEO / SHORT / LIVE!**\n\n@everyone\n\n📺 ${video.snippet.title}\n${videoURL}`
-  );
+    channel.send(
+      `🚨 **NEW VIDEO!**\n\n@everyone\n\n📺 ${video.snippet.title}\n${videoURL}`
+    );
+  } catch (err) {
+    console.error(err);
+  }
 }
-
 
 module.exports = { checkUploads };
