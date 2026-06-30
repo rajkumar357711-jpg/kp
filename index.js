@@ -216,7 +216,7 @@ function saveDaily(data) {
 }
 
 // ===== READY =====
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`Logged in as ${client.user.tag}`);
   manager.init(client.user.id);
   setInterval(() => {
