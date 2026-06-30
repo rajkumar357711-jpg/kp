@@ -1,10 +1,10 @@
 server:
-  port: 443
+  port: 2333
   address: 0.0.0.0
 
 lavalink:
   server:
-    password: "www.freelavalink.ga"
+    password: "youshallnotpass"
     sources:
       youtube: true
       soundcloud: true
